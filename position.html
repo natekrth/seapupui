@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  
+  
+  <style>
+    /* Remove the navbar's default margin-bottom and rounded borders */ 
+    .navbar {
+      margin-bottom: 0;
+      border-radius: 0;
+    }
+    
+    /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+    .row.content {height: 450px}
+    
+    /* Set gray background color and 100% height */
+    .sidenav {
+      padding-top: 20px;
+      background-color: #f1f1f1;
+      height: 100%;
+    }
+    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #555;
+      color: white;
+      padding: 15px;
+    }
+
+    /* On small screens, set height to 'auto' for sidenav and grid */
+    @media screen and (max-width: 767px) {
+      .sidenav {
+        height: auto;
+        padding: 15px;
+      }
+      .row.content {height:auto;} 
+    }
+  </style>
+  
+  <meta charset="utf-8" />
+
+  <script type="text/javascript" src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+  <script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+  
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript" type="text/javascript">
+    // Connecting to ROS
+    // -----------------
+  
+    var ros = new ROSLIB.Ros({
+      url : 'ws://localhost:9090'
+    });
+  
+    ros.on('connection', function() {
+      console.log('Connected to websocket server.');
+    });
+  
+    ros.on('error', function(error) {
+      console.log('Error connecting to websocket server: ', error);
+    });
+  
+    ros.on('close', function() {
+      console.log('Connection to websocket server closed.');
+    });
+
+    // Subscribing to a Topic
+    // ----------------------
+   
+    var listener = new ROSLIB.Topic({
+      ros : ros,
+      name : '/listener',
+      messageType : 'std_msgs/String'
+    });
+
+  
+    listener.subscribe(function(message) {
+      console.log('Received message on ' + listener.name + ': ' + message.data);
+    });
+  
+    var turtle_pose_sub = new ROSLIB.Topic({
+      ros : ros,
+      name : '/turtle1/pose',
+      messageType : 'turtlesim/msg/Pose'
+    });
+
+    var idx = 0;
+  
+  
+  var chart;
+  
+  
+  
+  var options = {
+    hAxis: {
+      title: 'Time'
+    },
+    vAxis: {
+      title: 'X value'
+    }
+  };
+  
+  
+  function drawBasic() {
+  
+        data = new google.visualization.DataTable();
+        data.addColumn('number', 'X');
+        data.addColumn('number', 'Dogs');
+  
+        // data.addRows([
+        //   [0, 0],   [1, 10],  [2, 23],  [3, 17],  [4, 18],  [5, 9],
+        //   [6, 11],  [7, 27],  [8, 33],  [9, 40],  [10, 32], [11, 35],
+        //   [12, 30], [13, 40], [14, 42], [15, 47], [16, 44], [17, 48],
+        //   [18, 52], [19, 54], [20, 42], [21, 55], [22, 56], [23, 57],
+        //   [24, 60], [25, 50], [26, 52], [27, 51], [28, 49], [29, 53],
+        //   [30, 55], [31, 60], [32, 61], [33, 59], [34, 62], [35, 65],
+        //   [36, 62], [37, 58], [38, 55], [39, 61], [40, 64], [41, 65],
+        //   [42, 63], [43, 66], [44, 67], [45, 69], [46, 69], [47, 70],
+        //   [48, 72], [49, 68], [50, 66], [51, 65], [52, 67], [53, 70],
+        //   [54, 71], [55, 72], [56, 73], [57, 75], [58, 70], [59, 68],
+        //   [60, 64], [61, 60], [62, 65], [63, 67], [64, 68], [65, 69],
+        //   [66, 70], [67, 72], [68, 75], [69, 80]
+        // ]);
+        chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+  
+      turtle_pose_sub.subscribe(function(message) {
+        console.log('Received message on ' + listener.name + ': ' + message.x + ',' + message.y);
+        idx += 1;
+        data.addRows([[idx, message.x]]);
+        //document.getElementById('chart_div').row.push([idx, message.x])
+        //document.getElementById('chart_div').drawChart();
+        if (idx % 10 == 0){
+          chart.draw(data, options);
+        }
+      });
+  
+  
+  </script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+     
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+
+        <li><a href="#">velocity controller</a></li>
+        <li><a href="#">position controller</a></li>
+</div>
+  </div>
+</nav>
+  
+<div class="container-fluid text-center">    
+  <div class="row content">
+  
+    <div class="col-sm-8 text-left"> 
+      <h1>Graph</h1>
+      <div id="chart_div"></div>
+      <script> 
+        google.charts.load('current', {packages: ['corechart', 'line']});
+        google.charts.setOnLoadCallback(drawBasic);
+      </script>
+    </div>  
+    <div class="col-sm-2 sidenav">
+       <p>publisher</p>
+    </div> 
+    <div class="col-sm-2 sidenav">
+    
+        <p>parameter configuration</p>
+    </div>
+  </div>
+  
+</div>
+
+<footer class="container-fluid text-center">
+  <p>Node</p>
+  <p id="nodelist"> </p>
+  <script> 
+  // get node
+  function getNodelist() {
+    var nodeList = new ROSLIB.Service({
+         ros : ros,
+         name : '/rosapi/nodes',
+         serviceType : 'rosapi/Nodes'
+      });
+     
+    var request = new ROSLIB.ServiceRequest();
+    
+    nodeList.callService(request, function(result) {
+      document.getElementById("nodelist").innerHTML = result.nodes
+      });
+    }
+
+    // call getNodelist every 2 seconds
+    var intervalId = window.setInterval(function(){
+      getNodelist()
+      }, 2000);
+  </script>
+</footer>
+
+</body>
+</html>
